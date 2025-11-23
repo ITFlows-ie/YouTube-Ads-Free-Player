@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YouTube Ads Free Player</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.png" />
+  <link rel="alternate icon" type="image/png" href="img/logo100.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <div class="card main-panel">
+      <div class="top-bar">
+        <div class="brand" aria-label="IT Flows бренд">
+          <img src="img/logo100.png" alt="IT Flows логотип" class="brand-logo" loading="lazy" decoding="async" />
+          <span class="brand-name">IT Flows</span>
+        </div>
+        <div class="lang-switch">
+          <label for="langSelect" class="visually-hidden">Language</label>
+          <select id="langSelect" aria-label="Выбор языка">
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
+      </div>
+      <h1 data-i18n="heading">YouTube Ads Free Player</h1>
+      <p class="subtitle" data-i18n="subtitle">Вставьте ссылку на видео. Можно просто смотреть или добавлять в очередь справа.</p>
+      <form id="ytForm" autocomplete="off" novalidate>
+        <div class="input-row">
+          <div class="input-wrapper empty">
+            <input id="ytUrl" name="ytUrl" type="url" inputmode="url" spellcheck="false" placeholder="https://www.youtube.com/watch?v=..." required />
+            <button type="button" id="inputClearBtn" class="input-clear-btn" aria-label="Очистить поле">&times;</button>
+          </div>
+          <button type="button" id="watchBtn" aria-label="Смотреть сейчас" data-i18n="watch_now">Смотреть</button>
+          <button type="button" id="queueBtn" class="secondary" aria-label="Добавить в очередь" data-i18n="add_to_queue">В очередь</button>
+        </div>
+        <div class="error" id="errorMsg"></div>
+      </form>
+      <div class="result-wrap" id="result" hidden>
+        <div class="iframe-shell loading" id="iframeShell" aria-label="Видео контейнер"></div>
+        <div class="nav-controls" id="navControls" hidden>
+          <button type="button" id="prevBtn" class="secondary" aria-label="Предыдущее" data-i18n="previous">⟨ Предыдущее</button>
+          <button type="button" id="nextBtn" class="secondary" aria-label="Следующее" data-i18n="next">Следующее ⟩</button>
+        </div>
+      </div>
+    </div>
+    <aside class="card queue-panel" aria-label="Очередь видео">
+      <div class="queue-header">
+        <h2 class="queue-title" data-i18n="queue_title">Очередь</h2>
+        <button type="button" id="clearAllBtn" class="secondary small" aria-label="Очистить очередь" data-i18n="clear_queue">Очистить</button>
+      </div>
+      <ul id="queueList" class="queue-list" aria-live="polite"></ul>
+      <div class="queue-empty" id="queueEmpty" data-i18n="queue_empty">Очередь пуста. Добавьте видео.</div>
+    </aside>
+    <div class="queue-overlay" id="queueOverlay" hidden></div>
+  </div>
+  <!-- Modal подтверждения очистки -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button type="button" class="close-btn" id="closeModalBtn" aria-label="Закрыть">✕</button>
+      <h3 id="modalTitle" data-i18n="modal_title">Очистить всю очередь?</h3>
+      <p class="modal-text" data-i18n="modal_text">Это удалит все видео из списка. Действие нельзя отменить.</p>
+      <div class="modal-actions">
+        <button type="button" id="confirmClearBtn" class="danger" data-i18n="modal_confirm">Очистить</button>
+        <button type="button" id="cancelClearBtn" class="secondary" data-i18n="modal_cancel">Отмена</button>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 IT Flows • <a href="https://github.com/ITFlows-ie" target="_blank" rel="noopener noreferrer">GitHub</a></footer>
+
+  <button type="button" id="openQueueBtn" class="open-queue-btn" aria-label="Открыть очередь">Очередь <span id="queueCount" class="queue-count">0</span></button>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

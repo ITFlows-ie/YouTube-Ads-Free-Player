@@ -1,0 +1,18 @@
+/* Additional fine-grained breakpoints */
+@media (max-width: 1100px) {
+  :root { --queue-width: clamp(20rem, 28vw, 22rem); }
+}
+@media (max-width: 900px) {
+  .result-wrap { margin-top:1rem; }
+  .queue-list { max-height: calc(100dvh - 7rem); }
+}
+@media (max-width: 640px) {
+  h1 { font-size: clamp(1.5rem,7vw,2.1rem); }
+  .subtitle { font-size: clamp(.8rem,2.8vw,.95rem); }
+  .input-row button { flex:1 1 48%; }
+  input[type=url] { font-size:.85rem; }
+  .queue-item .title { -webkit-line-clamp:3; line-clamp:3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; animation-iteration-count:1 !important; transition:none !important; }
+}
