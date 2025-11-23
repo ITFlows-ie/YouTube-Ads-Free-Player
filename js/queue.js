@@ -1,4 +1,5 @@
 import { buildEmbed, fetchMeta, extractId, escapeHtml } from './utils.js';
+import { playVideo, getSavedProgress } from './player.js';
 import { t } from './translations.js';
 
 export const state = {
@@ -106,19 +107,37 @@ export function reorderQueue(fromIdx, toIdx){
   saveQueue();
 }
 
-function renderIframe(src){
+async function renderIframe(src){
   const shell = state.refs.iframeShell;
-  shell.innerHTML = '';
-  const iframe = document.createElement('iframe');
-  iframe.width = '560';
-  iframe.height = '315';
-  iframe.src = src;
-  iframe.title = 'YouTube video player';
-  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-  iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-  iframe.allowFullscreen = true;
-  iframe.addEventListener('load', () => shell.classList.remove('loading'));
-  shell.appendChild(iframe);
+  shell.classList.add('loading');
+  // Extract videoId from embed src (after last '/')
+  let videoId = null;
+  try {
+    const parts = src.split('/');
+    videoId = parts[parts.length - 1].split('?')[0];
+  } catch(e){ /* ignore */ }
+  if(!videoId){
+    // fallback to previous iframe method if parsing failed
+    shell.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.width = '560';
+    iframe.height = '315';
+    iframe.src = src;
+    iframe.title = 'YouTube video player';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.allowFullscreen = true;
+    iframe.addEventListener('load', () => shell.classList.remove('loading'));
+    shell.appendChild(iframe);
+    return;
+  }
+  try {
+    await playVideo(videoId, shell);
+    // Remove loading class once API player is ready (approximate)
+    setTimeout(()=> shell.classList.remove('loading'), 600);
+  } catch(e){
+    shell.classList.remove('loading');
+  }
 }
 
 function setError(msg){ state.refs.errorMsg.textContent = msg; }

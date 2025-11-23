@@ -1,5 +1,6 @@
-import { addToQueue, watchNow, next, prev, initQueue, updateQueueUI, state, clearAllQueue } from './queue.js';
+import { addToQueue, watchNow, next, prev, initQueue, updateQueueUI, state, clearAllQueue, reorderQueue, playIndex } from './queue.js';
 import { setLang, getLang, applyTranslations, t } from './translations.js';
+import { extractId } from './utils.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const urlInput = document.getElementById('ytUrl');
@@ -29,7 +30,32 @@ window.addEventListener('DOMContentLoaded', () => {
   function setError(msg){ if(errorMsg) errorMsg.textContent = msg; }
   function clearError(){ setError(''); }
 
-  if(watchBtn) watchBtn.addEventListener('click', () => watchNow(urlInput.value));
+  if(watchBtn) watchBtn.addEventListener('click', () => {
+    const raw = urlInput.value;
+    if(!raw){ setError(t('error_enter_url')); return; }
+    const id = extractId(raw);
+    if(!id){ setError(t('error_extract')); return; }
+    // Find existing index
+    const existingIdx = state.queue.findIndex(v => v.id === id);
+    if(existingIdx === -1){
+      const ok = addToQueue(raw);
+      if(ok){
+        // Move newly added (at end) to front
+        reorderQueue(state.queue.length - 1, 0);
+        playIndex(0);
+      }
+    } else {
+      if(existingIdx !== 0){
+        reorderQueue(existingIdx, 0);
+      }
+      playIndex(0);
+    }
+    // Clear input for rapid subsequent additions
+    urlInput.value = '';
+    clearError();
+    updateInputClear();
+    urlInput.focus();
+  });
   if(queueBtn) queueBtn.addEventListener('click', () => {
     const raw = urlInput.value;
     if(!raw){ setError('Введите ссылку.'); return; }
