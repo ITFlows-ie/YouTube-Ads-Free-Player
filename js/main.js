@@ -134,7 +134,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const mq = window.matchMedia('(min-width: 901px)');
   mq.addEventListener('change', ev => { if(ev.matches) closeQueue(); });
 
-  urlInput.focus();
+  // Avoid forcing focus on mobile which may trigger zoom
+  if(window.matchMedia('(pointer: fine)').matches) {
+    urlInput.focus();
+  }
   initQueue({ errorMsg, resultWrap, iframeShell, queueList, queueEmpty, navControls });
 
   // Initialize lang select
