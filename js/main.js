@@ -29,7 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const playlistModalCount = document.getElementById('playlistModalCount');
   const playlistConfirmOk = document.getElementById('playlistConfirmOk');
   const playlistConfirmCancel = document.getElementById('playlistConfirmCancel');
-  let pendingPlaylistData = null; // {pid, ids}
+  let pendingPlaylistData = null; // {pid, ids, title}
   let pendingDeletePid = null;    // playlist id pending deletion confirmation
   // Sidebar playlist custom select rendering
   const playlistSelect = document.getElementById('playlistSelect');
@@ -153,11 +153,15 @@ window.addEventListener('DOMContentLoaded', () => {
   if(playlistConfirmOk){
     playlistConfirmOk.addEventListener('click', () => {
       if(!pendingPlaylistData) { closePlaylistModal(); return; }
-      const { pid, ids } = pendingPlaylistData;
+      const { pid, ids, title } = pendingPlaylistData;
       const existing = playlistStore.playlists.find(p => p.pid === pid);
       let pl = existing;
       if(!existing){
-        pl = playlistStore.createImportedPlaylist(pid, pid, ids);
+        pl = playlistStore.createImportedPlaylist(pid, title || pid, ids);
+      } else if(title && existing.title === existing.pid) {
+        // Update previously imported playlist that used pid as title
+        existing.title = title;
+        playlistStore.persist();
       }
       if(pl){
         activateAndLoad(pid);
@@ -223,7 +227,7 @@ window.addEventListener('DOMContentLoaded', () => {
         .then(resp => { if(!resp.ok) throw new Error('fetch'); return resp.json(); })
         .then(data => {
           if(!data || !Array.isArray(data.ids) || !data.ids.length){ setError(t('playlist_fetch_error')); return; }
-          pendingPlaylistData = { pid, ids: data.ids };
+          pendingPlaylistData = { pid, ids: data.ids, title: (data.title || pid) };
           if(playlistModalCount){ playlistModalCount.textContent = t('playlist_confirm_count').replace('{n}', String(data.ids.length)); }
           openPlaylistModal();
           clearError();
@@ -263,7 +267,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const data = await resp.json();
         if(!data || !Array.isArray(data.ids)){ setError(t('playlist_fetch_error')); return; }
         if(!data.ids.length){ setError(t('playlist_empty')); return; }
-        pendingPlaylistData = { pid, ids: data.ids };
+        pendingPlaylistData = { pid, ids: data.ids, title: (data.title || pid) };
         if(playlistModalCount){ playlistModalCount.textContent = t('playlist_confirm_count').replace('{n}', String(data.ids.length)); }
         // Show modal and remove loading message
         openPlaylistModal();

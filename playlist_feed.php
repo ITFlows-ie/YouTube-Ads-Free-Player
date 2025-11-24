@@ -1,7 +1,7 @@
 <?php
 // Simple server-side proxy for YouTube playlist RSS feed.
 // Usage: /playlist_feed.php?id=PLAYLIST_ID
-// Returns JSON: {"ids":[...],"count":n}
+// Returns JSON: {"ids":[...],"count":n, "title":"Playlist Title"}
 // Note: Only public playlists. No caching implemented.
 
 header('Content-Type: application/json; charset=utf-8');
@@ -25,6 +25,7 @@ if($xml === false){
 }
 // Try DOM parsing first for robustness
 $ids = [];
+$title = '';
 if(class_exists('DOMDocument')){
   libxml_use_internal_errors(true);
   $dom = new DOMDocument();
@@ -34,6 +35,12 @@ if(class_exists('DOMDocument')){
     $xpath->registerNamespace('yt','http://www.youtube.com/xml/schemas/2015');
     $nodes = $xpath->query('//yt:videoId');
     foreach($nodes as $n){ $ids[] = trim($n->textContent); }
+    // Playlist title (feed <title>)
+    $tNodes = $xpath->query('//feed/title | /feed/title | //title');
+    if($tNodes && $tNodes->length){
+      // First title element is usually like: "Uploads from <Channel>" or playlist label
+      $title = trim($tNodes->item(0)->textContent);
+    }
   }
   libxml_clear_errors();
 }
@@ -43,5 +50,10 @@ if(!$ids){
     $ids = $m[1];
   }
 }
+if(!$title){
+  if(preg_match('/<title>([^<]+)<\/title>/u',$xml,$m)){
+    $title = trim($m[1]);
+  }
+}
 $ids = array_values(array_unique(array_filter($ids,function($x){return $x !== ''; })));
-echo json_encode(['ids'=>$ids,'count'=>count($ids)]);
+echo json_encode(['ids'=>$ids,'count'=>count($ids),'title'=>$title]);
