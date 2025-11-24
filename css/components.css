@@ -22,6 +22,10 @@ button.small { padding:.55rem .85rem; font-size:.7rem; }
 .error { color: var(--danger); font-size:.75rem; min-height:1.1rem; line-height:1.1rem; letter-spacing:.02em; }
 .result-wrap { margin-top:1.4rem; display:flex; flex-direction:column; gap:1rem; }
 .iframe-shell { position:relative; width:100%; aspect-ratio:16/9; background:hsl(230 15% 7%); border:1px solid hsl(230 12% 18%); border-radius: .75rem; overflow:hidden; display:grid; place-items:center; }
+/* Rotation hint overlay */
+.rotate-hint { position:absolute; inset:0; background:rgba(0,0,0,.55); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem; color:#fff; font-size:.8rem; letter-spacing:.05em; text-align:center; padding:1rem; opacity:0; pointer-events:none; transition:opacity .25s; }
+.rotate-hint.show { opacity:1; }
+.rotate-hint .hint-icon { font-size:2.2rem; opacity:.85; }
 .iframe-shell.loading::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(45deg,hsl(230 15% 9%) 0 12px,hsl(230 15% 11%) 12px 24px); animation: pulse 1.6s linear infinite; opacity:.55; }
 @keyframes pulse { 0%{filter:brightness(.9)} 50%{filter:brightness(1.05)} 100%{filter:brightness(.9)} }
 iframe { width:100%; height:100%; border:0; }

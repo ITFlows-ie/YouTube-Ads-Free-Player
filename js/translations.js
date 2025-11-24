@@ -48,6 +48,8 @@ const dictionaries = {
     cast_connected: 'Подключено'
     ,video_deleted: 'Видео удалено'
     ,undo: 'Вернуть'
+    ,fullscreen_rotate_hint: 'Поверните устройство'
+    ,rotate_failed: 'Не удалось повернуть'
     ,cast_send_error: 'Ошибка отправки'
     ,cast_retrying: 'Повтор...'
   },
@@ -99,6 +101,8 @@ const dictionaries = {
     cast_connected: 'Connected'
     ,video_deleted: 'Video removed'
     ,undo: 'Undo'
+    ,fullscreen_rotate_hint: 'Rotate device'
+    ,rotate_failed: 'Rotate not supported'
     ,cast_send_error: 'Cast error'
     ,cast_retrying: 'Retrying...'
   },
@@ -150,6 +154,8 @@ const dictionaries = {
     cast_connected: 'Conectado'
     ,video_deleted: 'Vídeo eliminado'
     ,undo: 'Deshacer'
+    ,fullscreen_rotate_hint: 'Gira el dispositivo'
+    ,rotate_failed: 'Rotación no soportada'
     ,cast_send_error: 'Error de Cast'
     ,cast_retrying: 'Reintentando...'
   },
@@ -201,6 +207,8 @@ const dictionaries = {
     cast_connected: 'Verbunden'
     ,video_deleted: 'Video entfernt'
     ,undo: 'Rückgängig'
+    ,fullscreen_rotate_hint: 'Gerät drehen'
+    ,rotate_failed: 'Drehen nicht unterstützt'
     ,cast_send_error: 'Cast Fehler'
     ,cast_retrying: 'Erneuter Versuch...'
   },
@@ -252,6 +260,8 @@ const dictionaries = {
     cast_connected: 'Connecté'
     ,video_deleted: 'Vidéo supprimée'
     ,undo: 'Annuler'
+    ,fullscreen_rotate_hint: 'Tournez l’appareil'
+    ,rotate_failed: 'Rotation non prise en charge'
     ,cast_send_error: 'Erreur Cast'
     ,cast_retrying: 'Nouvelle tentative...'
   }

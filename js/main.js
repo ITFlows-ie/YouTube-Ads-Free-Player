@@ -321,6 +321,49 @@ window.addEventListener('DOMContentLoaded', () => {
     urlInput.addEventListener('input', updateWatchDisable);
   if(prevBtn) prevBtn.addEventListener('click', prev);
   if(nextBtn) nextBtn.addEventListener('click', next);
+  // Removed custom fullscreen button; rely on native YouTube fullscreen control
+  function attemptOrientationLock(){
+    if(!('orientation' in screen) || !screen.orientation?.lock){
+      showRotateHint();
+      return;
+    }
+    screen.orientation.lock('landscape').then(()=>{
+      hideRotateHint();
+    }).catch(err=>{
+      // Some browsers (iOS Safari) deny lock
+      showRotateHint(true);
+    });
+  }
+  // Rotation hint overlay
+  let rotateHintEl = null;
+  function ensureRotateHint(){
+    if(rotateHintEl) return rotateHintEl;
+    rotateHintEl = document.createElement('div');
+    rotateHintEl.className = 'rotate-hint';
+    rotateHintEl.innerHTML = `<div class="hint-icon">🔁</div><div class="hint-text"></div>`;
+    iframeShell.appendChild(rotateHintEl);
+    return rotateHintEl;
+  }
+  function showRotateHint(failed){
+    const el = ensureRotateHint();
+    const textEl = el.querySelector('.hint-text');
+    if(textEl){ textEl.textContent = failed ? t('rotate_failed') : t('fullscreen_rotate_hint'); }
+    el.classList.add('show');
+  }
+  function hideRotateHint(){ if(rotateHintEl){ rotateHintEl.classList.remove('show'); } }
+  // Attempt orientation lock when entering/exiting fullscreen via native controls
+  document.addEventListener('fullscreenchange', () => {
+    if(document.fullscreenElement){
+      // Only attempt on coarse pointers (mobile/tablet) to avoid desktop side-effects
+      if(window.matchMedia('(pointer: coarse)').matches){
+        attemptOrientationLock();
+      } else {
+        hideRotateHint();
+      }
+    } else {
+      hideRotateHint();
+    }
+  });
   function updateInputClear(){
     if(!inputWrapper) return;
     inputWrapper.classList.toggle('empty', !urlInput.value);
