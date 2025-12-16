@@ -3,7 +3,7 @@
 
 const STORAGE_KEY = 'ytRecsCache';
 const TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
-const MAX_ENTRIES = 100; // Limit cache size to avoid localStorage bloat
+const MAX_ENTRIES = 200; // Limit cache size to avoid localStorage bloat
 
 function readCache() {
   try {
