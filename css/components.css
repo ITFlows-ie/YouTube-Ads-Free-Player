@@ -73,6 +73,9 @@ iframe { width:100%; height:100%; border:0; }
 .rec-thumb { position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border-radius:.6rem; background:#111; }
 .rec-thumb-img { position:absolute; inset:0; background-size:cover; background-position:center; filter:brightness(.95); }
 .rec-duration { position:absolute; right:.45rem; bottom:.45rem; padding:.15rem .35rem; font-size:.7rem; font-weight:700; background:rgba(0,0,0,.7); border-radius:.35rem; color:#fff; letter-spacing:.02em; }
+.rec-save { position:absolute; top:.4rem; right:.4rem; width:1.8rem; height:1.8rem; border-radius:50%; border:none; background:rgba(0,0,0,.55); color:#fff; font-weight:800; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: background .2s, transform .2s; }
+.rec-save:hover { background:rgba(0,0,0,.78); transform:scale(1.05); }
+.rec-save:focus { outline:2px solid var(--accent); outline-offset:2px; }
 .rec-progress { position:absolute; left:0; bottom:0; height:4px; width:100%; background:rgba(255,255,255,.08); }
 .rec-progress span { display:block; height:100%; background:var(--accent); border-radius:0 4px 4px 0; }
 .rec-meta { display:flex; flex-direction:column; gap:.15rem; min-width:0; }

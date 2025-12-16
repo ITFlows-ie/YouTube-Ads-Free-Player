@@ -10,10 +10,11 @@ const state = {
   onSelect: null
 };
 
-export function initRecommendations({ container, onSelect, t }){
+export function initRecommendations({ container, onSelect, onSave, t }){
   if(!container) return;
   state.container = container;
   state.onSelect = onSelect;
+  state.onSave = onSave;
   container.innerHTML = `
     <div class="recs-header">${t('recommendations')}</div>
     <div class="recs-list" id="recsList"></div>
@@ -54,6 +55,7 @@ export function renderRecommendations(items){
         <div class="rec-thumb-img" style="background-image:url('https://img.youtube.com/vi/${item.id}/mqdefault.jpg')"></div>
         ${duration ? `<div class="rec-duration">${duration}</div>` : ''}
         ${bar > 0 ? `<div class="rec-progress"><span style="width:${(bar*100).toFixed(1)}%"></span></div>` : ''}
+        <button class="rec-save" type="button" aria-label="Save">+</button>
       </div>
       <div class="rec-meta">
         <div class="rec-title">${item.title || item.id}</div>
@@ -62,6 +64,13 @@ export function renderRecommendations(items){
     el.addEventListener('click', () => {
       try { state.onSelect && state.onSelect(item.id); } catch(e){}
     });
+    const saveBtn = el.querySelector('.rec-save');
+    if(saveBtn){
+      saveBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        try { state.onSave && state.onSave(item.id); } catch(e){}
+      });
+    }
     frag.appendChild(el);
   });
   state.listEl.appendChild(frag);

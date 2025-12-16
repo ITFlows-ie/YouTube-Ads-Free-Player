@@ -427,17 +427,17 @@ window.addEventListener('DOMContentLoaded', () => {
     container: recsBlock,
     onSelect: (id) => {
       if (!id) return;
-      const existingIdx = state.queue.findIndex(v => v.id === id);
-      if (existingIdx === -1) {
-        const ok = addToQueue(id);
-        if (ok) {
-          reorderQueue(state.queue.length - 1, 0);
-          playIndex(0);
-        }
-      } else {
-        reorderQueue(existingIdx, 0);
+      // Save to Saved playlist at top and switch to it
+      playlistStore.addToSavedAtStart({ id, original: id });
+      activateAndLoad('saved');
+      // Play first item (just added) in queue
+      if (state.queue.length) {
         playIndex(0);
       }
+    },
+    onSave: (id) => {
+      if (!id) return;
+      playlistStore.addToSaved({ id, original: id });
     },
     t
   });
