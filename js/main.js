@@ -450,11 +450,23 @@ window.addEventListener('DOMContentLoaded', () => {
   // Also expose a helper for direct calls
   window.setRecommendations = (items) => renderRecommendations(items || []);
 
-  // Backend endpoint for recommendations (Vercel serverless function)
-  const RECS_ENDPOINT = 'https://youtube-player-inky.vercel.app/api/recs';
+  // Backend endpoint for recommendations (Railway Playwright backend)
+  const RECS_ENDPOINT = 'https://recs-backend-production.up.railway.app/api/recs';
+
+  // Deduplicate rapid duplicate events (currentChanged + videoChange)
+  let lastRecsVideoId = null;
+  let lastRecsTs = 0;
+  const RECS_DEDUP_MS = 500;
 
   async function loadRecommendationsFor(videoId) {
     if (!videoId) return;
+    const now = Date.now();
+    if (videoId === lastRecsVideoId && now - lastRecsTs < RECS_DEDUP_MS) {
+      console.log('[Recs] skip duplicate request for', videoId);
+      return;
+    }
+    lastRecsVideoId = videoId;
+    lastRecsTs = now;
     console.log('[Recs] loadRecommendationsFor', videoId);
     try {
       const url = `${RECS_ENDPOINT}?v=${encodeURIComponent(videoId)}`;
@@ -477,14 +489,13 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Load recommendations when current video in queue changes
+  // Load recommendations when current video changes (deduped in loadRecommendationsFor)
   window.addEventListener('currentChanged', (e) => {
     const videoId = e.detail && e.detail.videoId;
     if (!videoId) return;
     loadRecommendationsFor(videoId);
   });
 
-  // Also react to direct videoChange events (watchNow, if used)
   window.addEventListener('videoChange', (e) => {
     const videoId = e.detail && e.detail.videoId;
     if (!videoId) return;
