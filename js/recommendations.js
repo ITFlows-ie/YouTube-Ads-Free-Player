@@ -25,7 +25,7 @@ export function initRecommendations({ container, onSelect, t }){
 export function renderRecommendations(items){
   if(!state.container || !state.listEl || !state.emptyEl) return;
   state.listEl.innerHTML = '';
-  const data = Array.isArray(items) ? items.slice(0, 8) : [];
+  const data = Array.isArray(items) ? items : [];
   console.log('[Recs] renderRecommendations call, items:', Array.isArray(items) ? items.length : 'not-array');
   if(!data.length){
     console.log('[Recs] no items to render');
@@ -39,11 +39,14 @@ export function renderRecommendations(items){
     const el = document.createElement('button');
     el.className = 'rec-item';
     el.type = 'button';
+    const duration = item.duration && typeof item.duration === 'string' ? item.duration : '';
     el.innerHTML = `
-      <div class="rec-thumb" style="background-image:url('https://img.youtube.com/vi/${item.id}/mqdefault.jpg')"></div>
+      <div class="rec-thumb">
+        <div class="rec-thumb-img" style="background-image:url('https://img.youtube.com/vi/${item.id}/mqdefault.jpg')"></div>
+        ${duration ? `<div class="rec-duration">${duration}</div>` : ''}
+      </div>
       <div class="rec-meta">
         <div class="rec-title">${item.title || item.id}</div>
-        <div class="rec-id">${item.id}</div>
       </div>
     `;
     el.addEventListener('click', () => {
