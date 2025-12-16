@@ -10,6 +10,9 @@ const dictionaries = {
     previous: '⟨ Предыдущее',
     next: 'Следующее ⟩',
     queue_title: 'Очередь',
+    autoplay: 'Автовоспроизведение',
+    paste: 'Вставить',
+    autoplay: 'Автовоспроизведение',
     clear_queue: 'Очистить',
     queue_empty: 'Очередь пуста. Добавьте видео.',
     modal_title: 'Очистить всю очередь?',
@@ -41,17 +44,14 @@ const dictionaries = {
     playlist_delete_confirm_ok: 'Удалить',
     playlist_delete_confirm_cancel: 'Отмена',
     import_playlist_play: 'Импорт и смотреть',
-    fullscreen: 'На весь экран',
-    cast: 'Cast',
-    cast_no_devices: 'Нет устройств',
-    cast_connecting: 'Подключение...',
-    cast_connected: 'Подключено'
+    fullscreen: 'На весь экран'
     ,video_deleted: 'Видео удалено'
     ,undo: 'Вернуть'
     ,fullscreen_rotate_hint: 'Поверните устройство'
     ,rotate_failed: 'Не удалось повернуть'
-    ,cast_send_error: 'Ошибка отправки'
-    ,cast_retrying: 'Повтор...'
+    ,recommendations: 'Рекомендации'
+    ,recommendations_empty: 'Рекомендации появятся после выбора видео'
+    
   },
   en: {
     heading: 'YouTube Video Player',
@@ -63,6 +63,9 @@ const dictionaries = {
     previous: '⟨ Previous',
     next: 'Next ⟩',
     queue_title: 'Queue',
+    autoplay: 'Autoplay',
+    paste: 'Paste',
+    autoplay: 'Autoplay',
     clear_queue: 'Clear',
     queue_empty: 'Queue is empty. Add videos.',
     modal_title: 'Clear entire queue?',
@@ -94,17 +97,14 @@ const dictionaries = {
     playlist_delete_confirm_ok: 'Delete',
     playlist_delete_confirm_cancel: 'Cancel',
     import_playlist_play: 'Import & Play',
-    fullscreen: 'Fullscreen',
-    cast: 'Cast',
-    cast_no_devices: 'No devices',
-    cast_connecting: 'Connecting...',
-    cast_connected: 'Connected'
+    fullscreen: 'Fullscreen'
     ,video_deleted: 'Video removed'
     ,undo: 'Undo'
     ,fullscreen_rotate_hint: 'Rotate device'
     ,rotate_failed: 'Rotate not supported'
-    ,cast_send_error: 'Cast error'
-    ,cast_retrying: 'Retrying...'
+    ,recommendations: 'Recommendations'
+    ,recommendations_empty: 'Recommendations will appear after selecting a video'
+    
   },
   es: {
     heading: 'YouTube Video Player',
@@ -115,6 +115,8 @@ const dictionaries = {
     previous: '⟨ Anterior',
     next: 'Siguiente ⟩',
     queue_title: 'Cola',
+    autoplay: 'Reproducción automática',
+    paste: 'Pegar',
     clear_queue: 'Limpiar',
     queue_empty: 'La cola está vacía. Añade vídeos.',
     modal_title: '¿Limpiar toda la cola?',
@@ -147,17 +149,14 @@ const dictionaries = {
     playlist_delete_confirm_ok: 'Eliminar',
     playlist_delete_confirm_cancel: 'Cancelar',
     import_playlist_play: 'Importar y reproducir',
-    fullscreen: 'Pantalla completa',
-    cast: 'Cast',
-    cast_no_devices: 'Sin dispositivos',
-    cast_connecting: 'Conectando...',
-    cast_connected: 'Conectado'
+    fullscreen: 'Pantalla completa'
     ,video_deleted: 'Vídeo eliminado'
     ,undo: 'Deshacer'
     ,fullscreen_rotate_hint: 'Gira el dispositivo'
     ,rotate_failed: 'Rotación no soportada'
-    ,cast_send_error: 'Error de Cast'
-    ,cast_retrying: 'Reintentando...'
+    ,recommendations: 'Recomendaciones'
+    ,recommendations_empty: 'Las recomendaciones aparecerán tras elegir un vídeo'
+    
   },
   de: {
     heading: 'YouTube Video Player',
@@ -168,6 +167,9 @@ const dictionaries = {
     previous: '⟨ Zurück',
     next: 'Weiter ⟩',
     queue_title: 'Warteschlange',
+    autoplay: 'Autoplay',
+    paste: 'Einfügen',
+    autoplay: 'Autoplay',
     clear_queue: 'Leeren',
     queue_empty: 'Warteschlange leer. Füge Videos hinzu.',
     modal_title: 'Warteschlange komplett leeren?',
@@ -200,17 +202,14 @@ const dictionaries = {
     playlist_delete_confirm_ok: 'Löschen',
     playlist_delete_confirm_cancel: 'Abbrechen',
     import_playlist_play: 'Importieren & Abspielen',
-    fullscreen: 'Vollbild',
-    cast: 'Cast',
-    cast_no_devices: 'Keine Geräte',
-    cast_connecting: 'Verbinden...',
-    cast_connected: 'Verbunden'
+    fullscreen: 'Vollbild'
     ,video_deleted: 'Video entfernt'
     ,undo: 'Rückgängig'
     ,fullscreen_rotate_hint: 'Gerät drehen'
     ,rotate_failed: 'Drehen nicht unterstützt'
-    ,cast_send_error: 'Cast Fehler'
-    ,cast_retrying: 'Erneuter Versuch...'
+    ,recommendations: 'Empfehlungen'
+    ,recommendations_empty: 'Empfehlungen erscheinen nach der Auswahl eines Videos'
+    
   },
   fr: {
     heading: 'YouTube Video Player',
@@ -221,6 +220,9 @@ const dictionaries = {
     previous: '⟨ Précédent',
     next: 'Suivant ⟩',
     queue_title: 'File',
+    autoplay: 'Lecture auto',
+    paste: 'Coller',
+    autoplay: 'Lecture auto',
     clear_queue: 'Vider',
     queue_empty: 'La file est vide. Ajoutez des vidéos.',
     modal_title: 'Vider toute la file ?',
@@ -253,17 +255,14 @@ const dictionaries = {
     playlist_delete_confirm_ok: 'Supprimer',
     playlist_delete_confirm_cancel: 'Annuler',
     import_playlist_play: 'Importer & Lire',
-    fullscreen: 'Plein écran',
-    cast: 'Cast',
-    cast_no_devices: 'Aucun appareil',
-    cast_connecting: 'Connexion...',
-    cast_connected: 'Connecté'
+    fullscreen: 'Plein écran'
     ,video_deleted: 'Vidéo supprimée'
     ,undo: 'Annuler'
     ,fullscreen_rotate_hint: 'Tournez l’appareil'
     ,rotate_failed: 'Rotation non prise en charge'
-    ,cast_send_error: 'Erreur Cast'
-    ,cast_retrying: 'Nouvelle tentative...'
+    ,recommendations: 'Recommandations'
+    ,recommendations_empty: 'Les recommandations apparaîtront après la sélection d’une vidéo'
+    
   }
 };
 

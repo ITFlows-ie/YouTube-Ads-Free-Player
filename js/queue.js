@@ -55,8 +55,7 @@ export function playIndex(idx){
   renderIframe(embedSrc);
   updateQueueUI();
   saveQueue();
-  // Notify cast subsystem about video change
-  try { window.dispatchEvent(new CustomEvent('videoChange', { detail: { videoId: id } })); } catch {}
+  try { window.dispatchEvent(new CustomEvent('currentChanged', { detail: { videoId: id, index: idx } })); } catch {}
 }
 
 export function watchNow(raw){
@@ -241,7 +240,7 @@ export function updateQueueUI(){
     });
     queueList.appendChild(li);
   });
-  // Show controls (including Cast/Fullscreen) as soon as at least one video exists
+  // Show controls as soon as at least one video exists
   navControls.hidden = state.queue.length === 0;
   const qc = document.getElementById('queueCount');
   if(qc){

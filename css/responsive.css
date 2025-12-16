@@ -9,7 +9,9 @@
 @media (max-width: 640px) {
   h1 { font-size: clamp(1.5rem,7vw,2.1rem); }
   .subtitle { font-size: clamp(.8rem,2.8vw,.95rem); }
-  .input-row button { flex:1 1 48%; }
+  .input-row { flex-direction:row; flex-wrap:wrap; gap:.4rem; }
+  .input-row .input-wrapper { flex:0 0 100%; width:100%; }
+  .input-row button { flex:1 1 calc(33.333% - .27rem); max-width:calc(33.333% - .27rem); min-width:0; }
   /* Keep input font-size >=16px to prevent iOS Safari focus zoom */
   input[type=url] { font-size:1rem; }
   .queue-item .title { -webkit-line-clamp:3; line-clamp:3; }
