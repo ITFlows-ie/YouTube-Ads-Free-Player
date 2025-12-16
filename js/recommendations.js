@@ -29,14 +29,11 @@ export function renderRecommendations(items){
   if(!state.container || !state.listEl || !state.emptyEl) return;
   state.listEl.innerHTML = '';
   const data = Array.isArray(items) ? items : [];
-  console.log('[Recs] renderRecommendations call, items:', Array.isArray(items) ? items.length : 'not-array');
   const history = getHistorySnapshot();
   if(!data.length){
-    console.log('[Recs] no items to render');
     state.emptyEl.style.display = 'block';
     return;
   }
-  console.log('[Recs] rendering items:', data.length, data.map(it => it.id).slice(0, 5));
   state.emptyEl.style.display = 'none';
   const frag = document.createDocumentFragment();
   data.forEach(item => {

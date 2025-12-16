@@ -58,16 +58,6 @@ export function playIndex(idx){
   try { window.dispatchEvent(new CustomEvent('currentChanged', { detail: { videoId: id, index: idx } })); } catch {}
 }
 
-export function watchNow(raw){
-  const id = extractId(raw);
-  if(!id){ setError(t('error_extract')); state.refs.resultWrap.hidden = true; return; }
-  clearError();
-  state.refs.resultWrap.hidden = false;
-  state.refs.iframeShell.classList.add('loading');
-  renderIframe(buildEmbed(id));
-  try { window.dispatchEvent(new CustomEvent('videoChange', { detail: { videoId: id } })); } catch {}
-}
-
 export function next(){
   if(state.queue.length === 0) return;
   playIndex((state.currentIndex + 1) % state.queue.length);

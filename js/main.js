@@ -1,9 +1,10 @@
-import { addToQueue, watchNow, next, prev, initQueue, updateQueueUI, state, clearAllQueue, reorderQueue, playIndex, rebuildQueueFromSaved } from './queue.js';
-import { setLang, getLang, applyTranslations, t } from './translations.js';
+import { next, prev, initQueue, updateQueueUI, state, playIndex, rebuildQueueFromSaved } from './queue.js';
+import { setLang, t } from './translations.js';
 import { extractId, extractPlaylistId, fetchMeta } from './utils.js';
 import { fetchPlaylistFeed } from './playlist_fetch.js';
 import { playlistStore } from './playlists.js';
 import { initRecommendations, renderRecommendations } from './recommendations.js';
+import { getCached, setCached } from './recsCache.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const urlInput = document.getElementById('ytUrl');
@@ -17,13 +18,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const navControls = document.getElementById('navControls');
   const autoplayToggle = document.getElementById('autoplayToggle');
   const recsBlock = document.getElementById('recsBlock');
-  // Removed external clearBtn; replaced by internal inputClearBtn
   const inputClearBtn = document.getElementById('inputClearBtn');
   const inputWrapper = document.querySelector('.input-wrapper');
   const watchBtn = document.getElementById('watchBtn');
   const queueBtn = document.getElementById('queueBtn');
   const pasteBtn = document.getElementById('pasteBtn');
-  // Queue clear controls removed
   const openQueueBtn = document.getElementById('openQueueBtn');
   const queueOverlay = document.getElementById('queueOverlay');
   const queuePanel = document.querySelector('.queue-panel');
@@ -427,8 +426,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Queue clear modal logic removed
-  // Initialize autoplay setting
   loadAutoplay();
 
   // Init recommendations block (data supplied by page)
@@ -437,8 +434,6 @@ window.addEventListener('DOMContentLoaded', () => {
     onSelect: (item) => {
       if (!item || !item.id) return;
       const durSec = parseDurationSafe(item.duration);
-      console.log('[Recs] onSelect play/save', item.id);
-      // Save to Saved playlist at top and switch to it
       playlistStore.addToSavedAtStart({ id: item.id, original: item.id, dur: durSec });
       renderPlaylistSelect();
       updatePlaylistCurrent();
@@ -451,7 +446,6 @@ window.addEventListener('DOMContentLoaded', () => {
     onSave: (item) => {
       if (!item || !item.id) return;
       const durSec = parseDurationSafe(item.duration);
-      console.log('[Recs] onSave click', item.id);
       playlistStore.addToSaved({ id: item.id, original: item.id, dur: durSec });
       rebuildQueueFromSaved();
       renderPlaylistSelect();
@@ -471,7 +465,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Backend endpoint for recommendations (Railway Playwright backend)
   const RECS_ENDPOINT = 'https://recs-backend-production.up.railway.app/api/recs';
 
-  // Deduplicate rapid duplicate events (currentChanged + videoChange)
+  // Deduplicate rapid duplicate events
   let lastRecsVideoId = null;
   let lastRecsTs = 0;
   const RECS_DEDUP_MS = 500;
@@ -479,31 +473,31 @@ window.addEventListener('DOMContentLoaded', () => {
   async function loadRecommendationsFor(videoId) {
     if (!videoId) return;
     const now = Date.now();
-    if (videoId === lastRecsVideoId && now - lastRecsTs < RECS_DEDUP_MS) {
-      console.log('[Recs] skip duplicate request for', videoId);
-      return;
-    }
+    if (videoId === lastRecsVideoId && now - lastRecsTs < RECS_DEDUP_MS) return;
     lastRecsVideoId = videoId;
     lastRecsTs = now;
-    console.log('[Recs] loadRecommendationsFor', videoId);
+
+    // Check local cache first (7-day TTL)
+    const cached = getCached(videoId);
+    if (cached) {
+      window.setRecommendations(cached);
+      return;
+    }
+
+    // Fetch from backend
     try {
-      const url = `${RECS_ENDPOINT}?v=${encodeURIComponent(videoId)}`;
-      console.log('[Recs] fetching', url);
-      const res = await fetch(url);
-      if (!res.ok) {
-        console.warn('[Recs] non-OK response', res.status, res.statusText);
-        return;
-      }
+      const res = await fetch(`${RECS_ENDPOINT}?v=${encodeURIComponent(videoId)}`);
+      if (!res.ok) return;
       const data = await res.json().catch(() => null);
       if (!data || !Array.isArray(data.items)) {
-        console.warn('[Recs] invalid data shape', data);
-        if (window.setRecommendations) window.setRecommendations([]);
+        window.setRecommendations([]);
         return;
       }
-      console.log('[Recs] received items', data.items.length, data.items.map(it => it.id).slice(0, 5));
-      if (window.setRecommendations) window.setRecommendations(data.items);
-    } catch (e) {
-      console.error('[Recs] failed to load recommendations', e);
+      // Save to cache
+      setCached(videoId, data.items);
+      window.setRecommendations(data.items);
+    } catch {
+      // Silent fail
     }
   }
 
