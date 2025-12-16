@@ -40,9 +40,10 @@ export function renderRecommendations(items){
   state.emptyEl.style.display = 'none';
   const frag = document.createDocumentFragment();
   data.forEach(item => {
-    const el = document.createElement('button');
+    const el = document.createElement('div');
     el.className = 'rec-item';
-    el.type = 'button';
+    el.setAttribute('role', 'button');
+    el.tabIndex = 0;
     const duration = item.duration && typeof item.duration === 'string' ? item.duration : '';
     const durationSec = parseDuration(duration);
     const hist = history[item.id];
@@ -62,13 +63,19 @@ export function renderRecommendations(items){
       </div>
     `;
     el.addEventListener('click', () => {
-      try { state.onSelect && state.onSelect(item.id); } catch(e){}
+      try { state.onSelect && state.onSelect(item); } catch(e){}
+    });
+    el.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        try { state.onSelect && state.onSelect(item); } catch(e){}
+      }
     });
     const saveBtn = el.querySelector('.rec-save');
     if(saveBtn){
       saveBtn.addEventListener('click', (ev) => {
         ev.stopPropagation();
-        try { state.onSave && state.onSave(item.id); } catch(e){}
+        try { state.onSave && state.onSave(item); } catch(e){}
       });
     }
     frag.appendChild(el);

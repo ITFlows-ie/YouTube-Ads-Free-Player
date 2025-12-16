@@ -1,6 +1,6 @@
-import { addToQueue, watchNow, next, prev, initQueue, updateQueueUI, state, clearAllQueue, reorderQueue, playIndex } from './queue.js';
+import { addToQueue, watchNow, next, prev, initQueue, updateQueueUI, state, clearAllQueue, reorderQueue, playIndex, rebuildQueueFromSaved } from './queue.js';
 import { setLang, getLang, applyTranslations, t } from './translations.js';
-import { extractId, extractPlaylistId } from './utils.js';
+import { extractId, extractPlaylistId, fetchMeta } from './utils.js';
 import { fetchPlaylistFeed } from './playlist_fetch.js';
 import { playlistStore } from './playlists.js';
 import { initRecommendations, renderRecommendations } from './recommendations.js';
@@ -106,8 +106,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function activateAndLoad(pid) {
     playlistStore.activatePlaylist(pid);
-    clearAllQueue();
-    playlistStore.queueView.items.forEach(v => addToQueue(v.id));
+    // Rebuild queue directly from active playlist items
+    state.queue = playlistStore.queueView.items.map(v => ({ id: v.id, original: v.original || v.id, dur: v.dur, loading: true, meta: null }));
+    state.currentIndex = state.queue.length ? 0 : -1;
+    state.queue.forEach(item => {
+      fetchMeta(item.id).then(meta => { item.loading = false; item.meta = meta; updateQueueUI(); });
+    });
     updateQueueUI();
     if (state.queue.length) playIndex(0);
     renderPlaylistSelect();
@@ -141,6 +145,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!playlistSelect.contains(e.target)) closePlaylistDropdown();
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlaylistDropdown(); });
+
+  window.addEventListener('playlistCountsChanged', () => {
+    renderPlaylistSelect();
+    updatePlaylistCurrent();
+  });
 
   function setError(msg) { if (errorMsg) errorMsg.textContent = msg; }
   function clearError() { setError(''); }
@@ -425,19 +434,28 @@ window.addEventListener('DOMContentLoaded', () => {
   // Init recommendations block (data supplied by page)
   initRecommendations({
     container: recsBlock,
-    onSelect: (id) => {
-      if (!id) return;
+    onSelect: (item) => {
+      if (!item || !item.id) return;
+      const durSec = parseDurationSafe(item.duration);
+      console.log('[Recs] onSelect play/save', item.id);
       // Save to Saved playlist at top and switch to it
-      playlistStore.addToSavedAtStart({ id, original: id });
+      playlistStore.addToSavedAtStart({ id: item.id, original: item.id, dur: durSec });
+      renderPlaylistSelect();
+      updatePlaylistCurrent();
       activateAndLoad('saved');
       // Play first item (just added) in queue
       if (state.queue.length) {
         playIndex(0);
       }
     },
-    onSave: (id) => {
-      if (!id) return;
-      playlistStore.addToSaved({ id, original: id });
+    onSave: (item) => {
+      if (!item || !item.id) return;
+      const durSec = parseDurationSafe(item.duration);
+      console.log('[Recs] onSave click', item.id);
+      playlistStore.addToSaved({ id: item.id, original: item.id, dur: durSec });
+      rebuildQueueFromSaved();
+      renderPlaylistSelect();
+      updatePlaylistCurrent();
     },
     t
   });
@@ -501,6 +519,15 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!videoId) return;
     loadRecommendationsFor(videoId);
   });
+
+  function parseDurationSafe(str) {
+    if (!str || typeof str !== 'string') return null;
+    const parts = str.split(':').map(x => parseInt(x, 10));
+    if (parts.some(isNaN)) return null;
+    if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+    if (parts.length === 2) return parts[0]*60 + parts[1];
+    return null;
+  }
 
   // Autoplay: advance to next queue item (non-circular) when video ends
   window.addEventListener('videoEnded', () => {

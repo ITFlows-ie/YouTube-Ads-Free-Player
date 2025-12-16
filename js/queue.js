@@ -1,5 +1,5 @@
 import { buildEmbed, fetchMeta, extractId, escapeHtml } from './utils.js';
-import { playVideo, getSavedProgress } from './player.js';
+import { playVideo, getSavedProgress, getHistoryEntry } from './player.js';
 import { t } from './translations.js';
 import { playlistStore } from './playlists.js';
 
@@ -164,9 +164,12 @@ export function updateQueueUI(){
     li.draggable = true;
     let title = item.meta?.title || (item.loading ? t('loading') : item.id);
     let thumb = item.meta?.thumb || `https://img.youtube.com/vi/${item.id}/hqdefault.jpg`;
+    const hist = getHistoryEntry(item.id);
+    const durSec = item.dur || hist?.d || null;
+    const durText = durSec ? formatDuration(durSec) : '';
     li.innerHTML = `<span class="handle" aria-hidden="true">↕</span>
-      <div class="thumb-wrap">${item.loading ? '' : `<img src="${thumb}" alt="Thumbnail">`}</div>
-      <div class="meta"><div class="title">${escapeHtml(title)}</div><div class="orig">${escapeHtml(item.original)}</div></div>
+      <div class="thumb-wrap">${item.loading ? '' : `<img src="${thumb}" alt="Thumbnail">`}${durText ? `<span class="queue-duration">${durText}</span>` : ''}</div>
+      <div class="meta"><div class="title">${escapeHtml(title)}</div></div>
       <span class="qid">#${idx+1}</span>
       <button type="button" class="del-btn" aria-label="${t('delete')}">✕</button>`;
     li.addEventListener('click', e => {
@@ -184,7 +187,7 @@ export function updateQueueUI(){
         // Perform removal
         playlistStore.removeFromSaved(vid);
         const currentId = state.queue[state.currentIndex]?.id;
-        state.queue = playlistStore.saved.videos.map(v => ({id: v.id, original: v.original, loading: false, meta: null}));
+        state.queue = playlistStore.saved.videos.map(v => ({id: v.id, original: v.original, dur: v.dur, loading: false, meta: null}));
         if(state.queue.length === 0){
           state.currentIndex = -1;
         } else if(currentId && state.queue.some(q => q.id === currentId)){
@@ -208,7 +211,7 @@ export function updateQueueUI(){
           playlistStore.persist();
           // Rebuild queue from saved
           const prevPlayingId = wasActive ? removed.id : (state.queue[state.currentIndex]?.id);
-          state.queue = playlistStore.saved.videos.map(v => ({id: v.id, original: v.original, loading: false, meta: null}));
+          state.queue = playlistStore.saved.videos.map(v => ({id: v.id, original: v.original, dur: v.dur, loading: false, meta: null}));
           if(prevPlayingId){
             const newIdx = state.queue.findIndex(q => q.id === prevPlayingId);
             state.currentIndex = newIdx !== -1 ? newIdx : 0;
@@ -255,11 +258,21 @@ export function updateQueueUI(){
   }
 }
 
+function formatDuration(sec){
+  const s = Math.max(0, Math.floor(sec));
+  const h = Math.floor(s/3600);
+  const m = Math.floor((s%3600)/60);
+  const ss = s%60;
+  const pad = (n)=> n.toString().padStart(2,'0');
+  if(h>0) return `${h}:${pad(m)}:${pad(ss)}`;
+  return `${m}:${pad(ss)}`;
+}
+
 function saveQueue(){
   try {
     const data = {
       currentIndex: state.currentIndex,
-      queue: state.queue.map(i => ({id: i.id, original: i.original}))
+      queue: state.queue.map(i => ({id: i.id, original: i.original, dur: i.dur}))
     };
     localStorage.setItem(state.storageKey, JSON.stringify(data));
   } catch(e){ /* ignore */ }
@@ -271,7 +284,7 @@ function loadQueue(){
     if(!raw) return;
     const data = JSON.parse(raw);
     if(!data || !Array.isArray(data.queue)) return;
-    state.queue = data.queue.filter(it => it.id).map(it => ({id: it.id, original: it.original, loading: false, meta: null}));
+    state.queue = data.queue.filter(it => it.id).map(it => ({id: it.id, original: it.original, dur: it.dur, loading: false, meta: null}));
     state.currentIndex = typeof data.currentIndex === 'number' ? data.currentIndex : -1;
   } catch(e){ /* ignore parse errors */ }
 }
@@ -282,6 +295,35 @@ export function clearAllQueue(){
   updateQueueUI();
   try { localStorage.removeItem(state.storageKey); } catch(e){}
   if(state.refs.resultWrap){ state.refs.resultWrap.hidden = true; }
+}
+
+// Rebuild state.queue from playlistStore without changing playback
+export function rebuildQueueFromSaved(){
+  if(playlistStore.queueView.activePlaylistId !== 'saved') return;
+  const currentId = state.queue[state.currentIndex]?.id;
+  state.queue = playlistStore.saved.videos.map(v => ({
+    id: v.id,
+    original: v.original || v.id,
+    dur: v.dur,
+    loading: false,
+    meta: null
+  }));
+  // Restore currentIndex to same video if still in queue
+  if(currentId){
+    const idx = state.queue.findIndex(q => q.id === currentId);
+    state.currentIndex = idx !== -1 ? idx : (state.queue.length ? 0 : -1);
+  } else {
+    state.currentIndex = state.queue.length ? 0 : -1;
+  }
+  // Fetch metadata for new items
+  state.queue.forEach(item => {
+    if(!item.meta){
+      item.loading = true;
+      fetchMeta(item.id).then(meta => { item.loading = false; item.meta = meta; updateQueueUI(); });
+    }
+  });
+  updateQueueUI();
+  saveQueue();
 }
 
 // Snackbar (Undo for Saved deletions)

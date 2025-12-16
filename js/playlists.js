@@ -21,23 +21,24 @@ function loadInitial(){
 const initial = loadInitial();
 
 export const playlistStore = {
-  saved: { videos: (initial?.saved || []).filter(v => v && v.id) },
+  saved: { videos: (initial?.saved || []).filter(v => v && v.id).map(v => ({ id: v.id, original: v.original || v.id, dur: v.dur })) },
   playlists: (initial?.playlists || []).filter(p => p && p.pid && Array.isArray(p.videos)),
   queueView: { activePlaylistId: initial?.activePlaylistId || 'saved', items: [] },
   persist(){
     try {
       const data = {
-        saved: this.saved.videos.map(v => ({id: v.id, original: v.original})),
+        saved: this.saved.videos.map(v => ({id: v.id, original: v.original, dur: v.dur})),
         playlists: this.playlists.map(p => ({ pid: p.pid, title: p.title, videos: p.videos.map(v => ({id: v.id})) })),
         activePlaylistId: this.queueView.activePlaylistId
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      try { window.dispatchEvent(new CustomEvent('playlistCountsChanged')); } catch {}
     } catch(e){ /* ignore */ }
   },
   rebuildQueueView(){
     const apid = this.queueView.activePlaylistId;
     if(apid === 'saved'){
-      this.queueView.items = this.saved.videos.map(v => ({id: v.id, original: v.original}));
+      this.queueView.items = this.saved.videos.map(v => ({id: v.id, original: v.original, dur: v.dur}));
     } else {
       const pl = this.playlists.find(p => p.pid === apid);
       this.queueView.items = pl ? pl.videos.map(v => ({id: v.id})) : [];
@@ -53,7 +54,7 @@ export const playlistStore = {
   addToSaved(video){
     if(!video || !video.id) return;
     if(this.saved.videos.some(v => v.id === video.id)) return;
-    this.saved.videos.push({ id: video.id, original: video.original || video.id });
+    this.saved.videos.push({ id: video.id, original: video.original || video.id, dur: video.dur });
     if(this.queueView.activePlaylistId === 'saved'){ this.rebuildQueueView(); }
     this.persist();
   },
@@ -64,7 +65,7 @@ export const playlistStore = {
       const [item] = this.saved.videos.splice(existingIdx,1);
       this.saved.videos.unshift(item);
     } else {
-      this.saved.videos.unshift({ id: video.id, original: video.original || video.id });
+      this.saved.videos.unshift({ id: video.id, original: video.original || video.id, dur: video.dur });
     }
     if(this.queueView.activePlaylistId === 'saved'){ this.rebuildQueueView(); }
     this.persist();
